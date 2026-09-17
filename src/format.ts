@@ -16,10 +16,23 @@ export function money(v: number, decimals: 0 | 2 = 0): string {
   return decimals === 0 ? brl0.format(v) : brl2.format(v)
 }
 
-/** Versão curta para eixos de gráfico, onde não cabe o valor inteiro. */
-export function moneyShort(v: number): string {
+/**
+ * Versão curta para eixos de gráfico, onde não cabe o valor inteiro.
+ *
+ * Em `compact` (tela estreita) o "R$" e o "mil" saem: num eixo de 40px de
+ * largura, "R$ 200 mil" não cabe, e "200k" diz a mesma coisa. A unidade fica
+ * subentendida pelo título do gráfico.
+ */
+export function moneyShort(v: number, compact = false): string {
   const abs = Math.abs(v)
-  const sign = v < 0 ? '-' : ''
+  const sign = v < 0 ? '−' : ''
+
+  if (compact) {
+    if (abs >= 1000000) return sign + (abs / 1000000).toFixed(1).replace('.', ',') + 'mi'
+    if (abs >= 1000) return sign + Math.round(abs / 1000) + 'k'
+    return sign + Math.round(abs)
+  }
+
   if (abs >= 1000000) return sign + 'R$ ' + (abs / 1000000).toFixed(1).replace('.', ',') + ' mi'
   if (abs >= 1000) return sign + 'R$ ' + Math.round(abs / 1000) + ' mil'
   return sign + 'R$ ' + Math.round(abs)

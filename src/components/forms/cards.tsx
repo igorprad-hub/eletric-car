@@ -406,7 +406,7 @@ export function ChargingCard({ inputs, update }: CardProps) {
         DC rápido de rodovia. Distribua os percentuais de como você realmente vai usar.
       </div>
 
-      <table className="breakdown" style={{ marginBottom: 4 }}>
+      <table className="breakdown charging-table" style={{ marginBottom: 4 }}>
         <thead>
           <tr>
             <th>Fonte</th>
@@ -421,7 +421,7 @@ export function ChargingCard({ inputs, update }: CardProps) {
               <tr key={id} style={disabled ? { opacity: 0.4 } : undefined}>
                 <td>{CHARGING_SOURCE_LABELS[id]}</td>
                 <td>
-                  <div className="input-shell" style={{ height: 28 }}>
+                  <div className="input-shell input-shell-cell">
                     <input
                       inputMode="decimal"
                       aria-label={'Preço do kWh em ' + CHARGING_SOURCE_LABELS[id]}
@@ -435,7 +435,7 @@ export function ChargingCard({ inputs, update }: CardProps) {
                   </div>
                 </td>
                 <td>
-                  <div className="input-shell" style={{ height: 28 }}>
+                  <div className="input-shell input-shell-cell">
                     <input
                       inputMode="numeric"
                       aria-label={'Percentual de uso em ' + CHARGING_SOURCE_LABELS[id]}

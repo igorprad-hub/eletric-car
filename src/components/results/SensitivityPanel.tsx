@@ -6,8 +6,8 @@ import type { Inputs } from '../../domain/types'
 import { money, moneyShort } from '../../format'
 import { niceScale, useElementWidth } from '../../hooks/useElementWidth'
 
-const PAD = { top: 16, right: 20, bottom: 30, left: 62 }
-const HEIGHT = 220
+const PAD_WIDE = { top: 16, right: 20, bottom: 30, left: 62 }
+const PAD_NARROW = { top: 16, right: 12, bottom: 28, left: 40 }
 
 /**
  * O painel mais honesto da ferramenta.
@@ -18,9 +18,12 @@ const HEIGHT = 220
  * de lado.
  */
 export function SensitivityPanel({ inputs }: { inputs: Inputs }) {
-  const { ref, width } = useElementWidth<HTMLDivElement>()
+  const { ref, width, compact } = useElementWidth<HTMLDivElement>()
   const [variable, setVariable] = useState<SensitivityId>('fuelPrice')
   const [hover, setHover] = useState<number | null>(null)
+
+  const PAD = compact ? PAD_NARROW : PAD_WIDE
+  const HEIGHT = compact ? 190 : 220
 
   const sweep = useMemo(() => runSensitivity(inputs, variable), [inputs, variable])
 
@@ -45,15 +48,16 @@ export function SensitivityPanel({ inputs }: { inputs: Inputs }) {
       .join(' ')
 
     return { x, y, d, scale, plotW, plotH, xMin, xMax }
-  }, [sweep, width])
+  }, [sweep, width, PAD.left, PAD.right, PAD.top, HEIGHT])
 
   const { x, y, d, scale, plotW, plotH, xMin, xMax } = geo
 
-  function handleMove(e: React.MouseEvent<SVGSVGElement>) {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const px = e.clientX - rect.left
-    const i = Math.round(((px - PAD.left) / Math.max(plotW, 1)) * (sweep.points.length - 1))
-    setHover(i >= 0 && i < sweep.points.length ? i : null)
+  function pointAt(clientX: number, target: SVGSVGElement): number | null {
+    const rect = target.getBoundingClientRect()
+    const i = Math.round(
+      ((clientX - rect.left - PAD.left) / Math.max(plotW, 1)) * (sweep.points.length - 1),
+    )
+    return i >= 0 && i < sweep.points.length ? i : null
   }
 
   const hovered = hover !== null ? sweep.points[hover] : null
@@ -68,7 +72,6 @@ export function SensitivityPanel({ inputs }: { inputs: Inputs }) {
         <select
           value={variable}
           onChange={(e) => setVariable(e.target.value as SensitivityId)}
-          style={{ width: 'auto' }}
           aria-label="Variável a testar"
         >
           {SENSITIVITY_VARIABLES.map((v) => (
@@ -111,8 +114,12 @@ export function SensitivityPanel({ inputs }: { inputs: Inputs }) {
           aria-label={
             'Diferença de custo entre manter e trocar conforme varia ' + sweep.label.toLowerCase()
           }
-          onMouseMove={handleMove}
+          onMouseMove={(e) => setHover(pointAt(e.clientX, e.currentTarget))}
           onMouseLeave={() => setHover(null)}
+          onTouchStart={(e) => setHover(pointAt(e.touches[0].clientX, e.currentTarget))}
+          onTouchMove={(e) => setHover(pointAt(e.touches[0].clientX, e.currentTarget))}
+          onTouchEnd={() => setHover(null)}
+          style={{ touchAction: 'pan-y' }}
         >
           {[scale.max, 0, -scale.max].map((v) => (
             <g key={v}>
@@ -125,14 +132,14 @@ export function SensitivityPanel({ inputs }: { inputs: Inputs }) {
                 strokeWidth={1}
               />
               <text
-                x={PAD.left - 10}
+                x={PAD.left - (compact ? 6 : 10)}
                 y={y(v) + 4}
                 textAnchor="end"
-                fontSize={11}
+                fontSize={compact ? 10 : 11}
                 fill="var(--ink-muted)"
                 style={{ fontVariantNumeric: 'tabular-nums' }}
               >
-                {v === 0 ? 'empata' : moneyShort(v)}
+                {v === 0 ? 'empata' : moneyShort(v, compact)}
               </text>
             </g>
           ))}
@@ -184,14 +191,14 @@ export function SensitivityPanel({ inputs }: { inputs: Inputs }) {
             </g>
           )}
 
-          <text x={PAD.left} y={HEIGHT - 10} fontSize={11} fill="var(--ink-muted)">
+          <text x={PAD.left} y={HEIGHT - 9} fontSize={compact ? 10 : 11} fill="var(--ink-muted)">
             {sweep.format(xMin)}
           </text>
           <text
             x={PAD.left + plotW}
-            y={HEIGHT - 10}
+            y={HEIGHT - 9}
             textAnchor="end"
-            fontSize={11}
+            fontSize={compact ? 10 : 11}
             fill="var(--ink-muted)"
           >
             {sweep.format(xMax)}
@@ -212,7 +219,11 @@ export function SensitivityPanel({ inputs }: { inputs: Inputs }) {
         {hovered && (
           <div
             className="tooltip"
-            style={{ left: Math.min(Math.max(x(hovered.x) + 12, 8), width - 180), top: 6 }}
+            style={{
+              left: Math.min(Math.max(x(hovered.x) - 75, 4), Math.max(width - 154, 4)),
+              top: 4,
+              minWidth: 150,
+            }}
           >
             <div className="tooltip-title">{sweep.format(hovered.x)}</div>
             <div className="tooltip-row">

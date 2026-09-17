@@ -271,6 +271,13 @@ select:focus {
   border-color: var(--keep);
 }
 
+/* No cabeçalho do gráfico o select fica ao lado do título, então se ajusta ao
+   conteúdo; na coluna estreita ele volta a ocupar a linha inteira. */
+.chart-head select {
+  width: auto;
+  min-width: 190px;
+}
+
 .hint {
   font-size: 11px;
   color: var(--ink-muted);
@@ -711,4 +718,174 @@ button.ghost:hover {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ==================================================================
+   Telas estreitas
+
+   Três coisas decidem a experiência no celular, e nenhuma é óbvia:
+
+   1. Campo com fonte menor que 16px faz o Safari do iOS dar zoom sozinho
+      ao receber foco, e a página nunca volta ao lugar. 16px não é escolha
+      estética, é o que impede esse salto.
+   2. Alvo de toque menor que ~44px de altura erra muito. Os campos crescem.
+   3. A tabela de detalhamento não cabe em 375px com as cinco colunas. A
+      barrinha visual é supplementar, então ela sai — o número da diferença,
+      que é o dado de verdade, fica.
+   ================================================================== */
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 16px 14px 56px;
+  }
+
+  .masthead {
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .masthead h1 {
+    font-size: 20px;
+  }
+
+  .masthead .toolbar button {
+    white-space: nowrap;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .chart-head {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .chart-head select {
+    width: 100%;
+  }
+
+  /* Campos maiores e com fonte de 16px: alvo de toque decente e sem
+     zoom automático do iOS. */
+  .input-shell {
+    height: 42px;
+  }
+
+  .input-shell input,
+  select {
+    font-size: 16px;
+  }
+
+  select {
+    height: 42px;
+  }
+
+  .segmented button {
+    padding: 9px 13px;
+    font-size: 13px;
+  }
+
+  .check input {
+    width: 18px;
+    height: 18px;
+  }
+
+  details.advanced > summary {
+    padding: 4px 0;
+  }
+}
+
+@media (max-width: 560px) {
+  /* A barra da diferença é reforço visual, não dado. Some para a tabela caber. */
+  table.breakdown .col-bar,
+  .only-wide-inline {
+    display: none;
+  }
+
+  table.breakdown {
+    font-size: 12.5px;
+  }
+
+  table.breakdown td:first-child {
+    padding-right: 8px;
+  }
+
+  /* Dois campos por linha ainda cabem e poupam muita altura de rolagem. */
+  .grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .verdict {
+    padding: 14px;
+  }
+
+  .verdict-headline {
+    font-size: 22px;
+  }
+
+  .stat-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tooltip {
+    font-size: 11.5px;
+    padding: 7px 9px;
+  }
+}
+
+/* A tabela do mix de recarga tem campos editáveis: precisa de mais folga
+   que a de resultado, e os rótulos das fontes podem quebrar em duas linhas. */
+@media (max-width: 420px) {
+  table.breakdown th {
+    font-size: 10.5px;
+  }
+
+  .charging-table td:first-child {
+    white-space: normal;
+    line-height: 1.3;
+  }
+}
+
+/* Célula de tabela editável: compacta no desktop, dedo-friendly no celular. */
+.input-shell-cell {
+  height: 28px;
+}
+
+/* O <input> tem que ocupar a casca inteira, senão a área tocável é só a faixa
+   do texto (24px) em vez dos 42px que o campo aparenta ter. */
+.input-shell input {
+  height: 100%;
+}
+
+@media (max-width: 720px) {
+  .input-shell-cell {
+    height: 38px;
+  }
+
+  button.ghost {
+    min-height: 40px;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  details.advanced > summary {
+    min-height: 40px;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  .check {
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  .legend {
+    font-size: 12.5px;
+  }
 }

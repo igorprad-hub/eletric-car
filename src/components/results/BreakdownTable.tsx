@@ -54,13 +54,17 @@ export function BreakdownTable({ result }: { result: SimulationResult }) {
         </div>
       </div>
 
-      <table className="breakdown" style={{ marginTop: 10 }}>
+      <div className="table-scroll">
+        <table className="breakdown" style={{ marginTop: 10 }}>
         <thead>
           <tr>
             <th>Item</th>
             <th>Manter</th>
             <th>Trocar</th>
-            <th colSpan={2}>Diferença</th>
+            <th>Diferença</th>
+            <th className="col-bar">
+              <span className="sr-only">Representação visual da diferença</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -79,7 +83,7 @@ export function BreakdownTable({ result }: { result: SimulationResult }) {
                 <td className={tied ? undefined : favorsSwap ? 'positive' : 'negative'}>
                   {tied ? 'empata' : (favorsSwap ? '+' : '−') + money(Math.abs(r.diff))}
                 </td>
-                <td style={{ width: 120 }}>
+                <td className="col-bar">
                   {!tied && (
                     <span className="diffbar" role="presentation">
                       <span
@@ -102,11 +106,16 @@ export function BreakdownTable({ result }: { result: SimulationResult }) {
             <td>{money(swap.totalCost)}</td>
             <td className={totalDiff >= 0 ? 'positive' : 'negative'} colSpan={2}>
               {totalDiff >= 0 ? '+' : '−'}
-              {money(Math.abs(totalDiff))} {totalDiff >= 0 ? 'trocando' : 'mantendo'}
+              {money(Math.abs(totalDiff))}
+              <span className="only-wide-inline">
+                {' '}
+                {totalDiff >= 0 ? 'trocando' : 'mantendo'}
+              </span>
             </td>
           </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
 
       <div className="hint" style={{ marginTop: 10 }}>
         Barra laranja significa que a linha favorece trocar; azul, que favorece manter. Valor
